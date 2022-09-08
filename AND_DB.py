@@ -1,4 +1,6 @@
 import pyreadr
+from collections import Counter
+import csv
 
 result = pyreadr.read_r('Bibliometrix-Export-File-2022-09-06.RData') # also works for Rds
 
@@ -57,7 +59,6 @@ all_authors_repeated = list(filter(None, temp_list))
 print("Authors string count: ", len(all_authors_repeated))
 print("Authors IDs count: ", len(all_AU_ID_repeated))
 
-
 # print(authors_addr_list[50][0])
 # authors_addr_list_names = []
 # authors_addr_list_addr = []
@@ -87,9 +88,48 @@ author_name_repeat_count = [0] * len(all_authors)
 for i in range(len(all_authors)):
 	for j in range(len(all_authors_repeated)):
 		if all_authors[i] in all_authors_repeated[j]:
-			print(i, "repeats at position ", j)
+			# print(all_authors[i], "repeats at position ", j)
 			author_name_repeat_count[i] = author_name_repeat_count[i] + 1
 
-print(author_name_repeat_count)
+# creating a list of authors that appear more than once in data set
+repeated_authors = []
+unique_authors = []
+for i in range(len(author_name_repeat_count)):
+	if author_name_repeat_count[i] > 1:
+		repeated_authors.append(all_authors[i])
+	else:
+		unique_authors.append(all_authors[i])
 
+print("Number of repeated authors: ", len(repeated_authors))
+print("Number of unique authors: ", len(unique_authors))
 
+# generate a list of IDs coupled to each unique name
+authors_coupled_ID_list = []
+for k in all_authors:
+	name_IDs = []
+	name_IDs.append(k)
+	for i, j in enumerate(all_authors_repeated):
+		if j == k:
+			# print authors IDs
+			print(k, " -> ID: ", all_AU_ID_repeated[i])
+			name_IDs.append(all_AU_ID_repeated[i])
+	authors_coupled_ID_list.append(name_IDs)
+
+# count number of unique IDs for each name
+authors_more_than_1_ID = []
+print("Below are all authors unique names with more than 1 ID:")
+for i in authors_coupled_ID_list:
+	elements = list(Counter(i).keys()) # equals to list(set(words))
+	frequency = list(Counter(i).values()) # counts the elements' frequency
+	if len(elements) > 2:
+		print("Author ", elements[0], " has ", len(elements) - 1, "IDs: ", elements[1:len(elements)])
+		authors_more_than_1_ID.append(elements)
+		#print("Author's IDs: ", list(elements))
+		#print("Element count: ", list(frequency))
+# write csv file with authors_more_than_1_ID
+  
+with open('authors_with_multiple_IDs.csv', 'w') as f:
+      
+    # using csv.writer method from CSV package
+    write = csv.writer(f)
+    write.writerows(authors_more_than_1_ID)

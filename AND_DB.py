@@ -1,6 +1,6 @@
 import pyreadr
 from collections import Counter
-import csv
+from pybliometrics.scopus import AuthorRetrieval
 
 result = pyreadr.read_r('Bibliometrix-Export-File-2022-09-06.RData') # also works for Rds
 
@@ -111,25 +111,29 @@ for k in all_authors:
 	for i, j in enumerate(all_authors_repeated):
 		if j == k:
 			# print authors IDs
-			print(k, " -> ID: ", all_AU_ID_repeated[i])
+			# print(k, " -> ID: ", all_AU_ID_repeated[i])
 			name_IDs.append(all_AU_ID_repeated[i])
 	authors_coupled_ID_list.append(name_IDs)
 
 # count number of unique IDs for each name
 authors_more_than_1_ID = []
-print("Below are all authors unique names with more than 1 ID:")
+# print("Below are all authors unique names with more than 1 ID:")
+f = open("authors_with_multiple_IDs.csv", "w")
 for i in authors_coupled_ID_list:
 	elements = list(Counter(i).keys()) # equals to list(set(words))
 	frequency = list(Counter(i).values()) # counts the elements' frequency
 	if len(elements) > 2:
-		print("Author ", elements[0], " has ", len(elements) - 1, "IDs: ", elements[1:len(elements)])
-		authors_more_than_1_ID.append(elements)
+		# print("Author ", elements[0], " has ", len(elements) - 1, "IDs: ", elements[1:len(elements)])
+		#authors_more_than_1_ID.append(elements)
+		#print(elements)
 		#print("Author's IDs: ", list(elements))
 		#print("Element count: ", list(frequency))
-# write csv file with authors_more_than_1_ID
-  
-with open('authors_with_multiple_IDs.csv', 'w') as f:
-      
-    # using csv.writer method from CSV package
-    write = csv.writer(f)
-    write.writerows(authors_more_than_1_ID)
+		name = "\n" + elements[0] + ";"
+		f.write(name)
+		for j in range(1,len(elements)):
+			some_author = AuthorRetrieval(elements[j])
+			information = ";" + elements[j] + ";" + some_author.surname + ", " + some_author.given_name + "; Publication range: " + str(some_author.publication_range) + " Orcid: " + str(some_author.orcid) + " Date created: " + str(some_author.date_created)
+			f.write(information)
+			#print(elements[j])
+			#print("Surname Given Name: ", some_author.surname, some_author.given_name, "Name variants: ", some_author.name_variants)
+f.close()

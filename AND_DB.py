@@ -1,6 +1,7 @@
 import pyreadr
 from collections import Counter
 from pybliometrics.scopus import AuthorRetrieval
+import csv
 
 # result is a dictionary where keys are the name of objects and the values python
 # objects
@@ -84,7 +85,7 @@ for k in all_authors:
 
 # count number of unique IDs for each name
 authors_more_than_1_ID = []
-print("Below are all authors unique names with more than 1 ID:")
+# print("Below are all authors unique names with more than 1 ID:")
 f = open("authors_with_multiple_IDs.csv", "w")
 for i in authors_coupled_ID_list:
 	elements = list(Counter(i).keys()) # equals to list(set(words))
@@ -98,6 +99,7 @@ for i in authors_coupled_ID_list:
 		f.write(name)
 		for j in range(1,len(elements)):
 			some_author = AuthorRetrieval(elements[j])
-			information = ";" + elements[j] + ";" + some_author.surname + ", " + some_author.given_name + "; Publication range: " + str(some_author.publication_range) + " Orcid: " + str(some_author.orcid) + " Date created: " + str(some_author.date_created)
+			#information = ";" + elements[j] + ";" + some_author.surname + ", " + some_author.given_name + "; Publication range: " + str(some_author.publication_range) + " Orcid: " + str(some_author.orcid) + " Date created: " + str(some_author.date_created)
+			information = ";" + elements[j] + ";" + some_author.surname + ", " + some_author.given_name
 			f.write(information)
 f.close()
